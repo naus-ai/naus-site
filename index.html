@@ -464,8 +464,9 @@ p,li,dd{word-break:auto-phrase;text-wrap:pretty;line-break:strict}
     <h2 class="sec-title rv"><small>お問い合わせ</small>まずは、お気軽に。</h2>
     <p class="biz-intro rv" style="--d:.1s">求人紹介、AIコンサル、取材やセミナー登壇のご依頼など、内容を問わずご連絡ください。担当者よりご返信します。</p>
     <div class="ct-box rv" style="--d:.15s">
-      <form class="form" name="contact" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="bot-field">
+      <form class="form" name="contact" method="POST" action="/api/form" data-netlify="true" netlify-honeypot="bot-field">
         <input type="hidden" name="form-name" value="contact">
+        <input type="hidden" name="via" value="">
         <input type="hidden" name="utm_source" value="">
         <input type="hidden" name="utm_medium" value="">
         <input type="hidden" name="utm_campaign" value="">
