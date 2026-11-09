@@ -17,6 +17,8 @@ const FORMS = {
 const MAX_FIELD = 200;
 const MAX_MESSAGE = 1000;
 const EMPTY = '（未記入）';
+// 受付窓口（CRM）に送れなかったときの予備の知らせの印（先頭の行）
+const FALLBACK_NOTE = '⚠ CRM に送れなかったため、会社のサイトから直接知らせています';
 // このサイトの住所。送信したページは、ここのページのときだけ載せる
 const SITE_ORIGIN = 'https://www.naus.co.jp';
 // 「そのほかの項目」に出さないもの（迷惑な送信のふるい分けの欄と、Netlify が足す項目）
@@ -77,13 +79,15 @@ export function formatJst(iso) {
 }
 
 // Netlify の送信の中身（payload）から、Slack に送る文を作る。知らせないフォームなら null
-export function buildNewLeadMessage(payload) {
+// fallback: true のときは、先頭に予備の知らせの印を付ける
+export function buildNewLeadMessage(payload, { fallback = false } = {}) {
   const formName = payload?.form_name ?? payload?.data?.['form-name'];
   const form = Object.hasOwn(FORMS, formName) ? FORMS[formName] : null;
   if (!form) return null;
   const data = payload.data ?? {};
   const name = line(data, form.name);
   const lines = [
+    ...(fallback ? [FALLBACK_NOTE] : []),
     `*${form.title}*`,
     `取引先：${line(data, form.company)}`,
     `取引先責任者：${name === EMPTY ? EMPTY : `${name}さん`}`,

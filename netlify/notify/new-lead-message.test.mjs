@@ -198,3 +198,12 @@ test('escapeSlack と formatJst', () => {
   assert.equal(formatJst('x'), null);
   assert.equal(formatJst(undefined), null);
 });
+
+test('予備の知らせ（fallback）：先頭に「⚠ CRM に送れなかったため、会社のサイトから直接知らせています」が付く。付けないときは今まで通り', () => {
+  const payload = { form_name: 'contact', data: { company: '架空株式会社', name: '架空 太郎', email: 'a@example.test', body: 'x', utm_source: 'note', landing_page: '/' } };
+  const lines = buildNewLeadMessage(payload, { fallback: true }).text.split('\n');
+  assert.equal(lines[0], '⚠ CRM に送れなかったため、会社のサイトから直接知らせています');
+  assert.equal(lines[1], '*新しい問い合わせ（会社のサイト）*');
+  assert.ok(buildNewLeadMessage(payload, { fallback: true }).text.includes('utm_source：note'));
+  assert.equal(buildNewLeadMessage(payload).text.split('\n')[0], '*新しい問い合わせ（会社のサイト）*');
+});
