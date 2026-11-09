@@ -83,7 +83,7 @@ function assertNoPersonalData(errorMock) {
   }
 }
 
-test('受付窓口に送れないとき、Slack に「⚠」付きの知らせの文を、4秒の時間切れ付きで1回だけ送る', async (t) => {
+test('受付窓口に送れないとき、Slack に「⚠」付きの知らせの文を、3秒の時間切れ付きで1回だけ送る', async (t) => {
   setEnv(SLACK);
   const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('ok'));
   const timeout = t.mock.method(AbortSignal, 'timeout');
@@ -103,7 +103,7 @@ test('受付窓口に送れないとき、Slack に「⚠」付きの知らせ�
   assert.equal(sent.unfurl_media, false);
   assert.deepEqual(
     timeout.mock.calls.map((call) => call.arguments),
-    [[4000]],
+    [[3000]],
   );
   assert.equal(init.signal, timeout.mock.calls[0].result);
 });
@@ -222,13 +222,13 @@ test('受付窓口が 500・つながらないときは、Slack に「⚠」付�
   }
 });
 
-test('受付窓口が4秒で返事をしないときも、Slack に予備の知らせ（受付窓口4秒＋Slack4秒で、時間の上限10秒に収まる）', async (t) => {
+test('受付窓口が6秒で返事をしないときも、Slack に予備の知らせ（受付窓口6秒＋Slack3秒で、時間の上限10秒に収まる）', async (t) => {
   t.mock.method(console, 'error', () => {});
   setEnv(SLACK, true);
   const slack = [];
   const timeouts = [];
   const real = AbortSignal.timeout.bind(AbortSignal);
-  t.mock.method(AbortSignal, 'timeout', (ms) => { timeouts.push(ms); return real(ms === 4000 && timeouts.length === 1 ? 20 : ms); });
+  t.mock.method(AbortSignal, 'timeout', (ms) => { timeouts.push(ms); return real(ms === 6000 && timeouts.length === 1 ? 20 : ms); });
   t.mock.method(globalThis, 'fetch', async (input, init) => {
     if (String(input).startsWith(INTAKE)) {
       return new Promise((_, reject) => init.signal.addEventListener('abort', () => reject(init.signal.reason)));
@@ -237,7 +237,7 @@ test('受付窓口が4秒で返事をしないときも、Slack に予備の知�
     return new Response('ok');
   });
   await handler(formEvent());
-  assert.deepEqual(timeouts, [4000, 4000]);
+  assert.deepEqual(timeouts, [6000, 3000]);
   assert.equal(slack.length, 1);
 });
 
